@@ -4,172 +4,150 @@ using System.Windows.Forms;
 
 namespace lab13
 {
-    public enum STATUS { Main, Side };
     public enum SHAPE_TYPE { Circle, Rhomb, Triangle }
-    public enum MOVEMENT { Forward, Backward }
+    public enum DIAGONAL_TYPE { Main, Anti }
+
     public partial class Form1 : Form
     {
-        int size = 80;
-        int x = 1, y = 1;
-        int dx = 5, dy = 5;
-        Color forwardColor = Color.Red;
-        Color backwardColor = Color.Red;
-        SHAPE_TYPE currentShape = SHAPE_TYPE.Circle;
-        STATUS currentDirection = STATUS.Main;
-        MOVEMENT movement = MOVEMENT.Forward;
-        SolidBrush brush;
-        Rectangle shapeRect;
+        private int size = 80;
+        private int x = 1, y = 1;
+        private int step = 5;
+        private Color currentColor = Color.Red;
+        private SHAPE_TYPE currentShape = SHAPE_TYPE.Circle;
+        private DIAGONAL_TYPE diagonal = DIAGONAL_TYPE.Main;
+        private SolidBrush brush;
+        private Rectangle shapeRect;
+        private Random rnd = new Random();
 
         public Form1()
         {
             InitializeComponent();
-            brush = new SolidBrush(forwardColor);
+            brush = new SolidBrush(currentColor);
             this.DoubleBuffered = true;
             this.KeyPreview = true;
-
         }
 
-        public int MovementSpeed
+        // Свойства для настройки
+        public int Speed
         {
-            get { return 100 - timer1.Interval; }
-            set { timer1.Interval = Math.Max(1, 100 - value); }
+            get => 100 - timer1.Interval;
+            set => timer1.Interval = Math.Max(1, 100 - value);
         }
 
-        public Color ForwardColor
+        public Color ShapeColor
         {
-            get => forwardColor;
+            get => currentColor;
             set
             {
-                forwardColor = value;
-                if (movement == MOVEMENT.Forward) { brush.Color = value; }
+                currentColor = value;
+                brush.Color = value;
+                Invalidate();
             }
         }
 
-        public Color BackwardColor
-        {
-            get => backwardColor;
-            set
-            {
-                backwardColor = value;
-                if (movement == MOVEMENT.Backward) { brush.Color = value; }
-            }
-        }
-
-        public SHAPE_TYPE CurrentShape
+        public SHAPE_TYPE ShapeType
         {
             get => currentShape;
-            set => currentShape = value;
+            set
+            {
+                currentShape = value;
+                Invalidate();
+            }
         }
 
-        public STATUS CurrentDirection
+        public DIAGONAL_TYPE DiagonalType
         {
-            get => currentDirection;
-            set => currentDirection = value;
+            get => diagonal;
+            set
+            {
+                diagonal = value;
+                Invalidate();
+            }
         }
-
-        // событие работы таймера с заданным интервалом
+        private void btn_Settings_Click(object sender, EventArgs e)
+        {
+            var settingsForm = new Form2();
+            settingsForm.Owner = this;
+            settingsForm.Show(); // Не модальное окно для мгновенного применения
+        }
+        private void btn_Stop_Click(object sender, EventArgs e)
+        {
+            if (timer1.Enabled)
+            {
+                timer1.Stop();
+                btn_Stop.Text = "Старт";
+            }
+            else
+            {
+                timer1.Start();
+                btn_Stop.Text = "Стоп";
+            }
+        }
         private void timer1_Tick(object sender, EventArgs e)
         {
-            shapeRect = new Rectangle(x, y, size, size);
-            this.Invalidate(shapeRect);
-            if (currentDirection == STATUS.Main)
+            // Очистка предыдущей позиции
+            Invalidate(shapeRect);
+
+            // Движение по выбранной диагонали
+            if (diagonal == DIAGONAL_TYPE.Main)
             {
-                if (movement == MOVEMENT.Forward)
-                {
-                    x += dx;
-                    y += dy;
-                }
-                else
-                {
-                    x -= dx;
-                    y -= dy;
-                }
+                x += step;
+                y += step;
             }
             else
             {
-                if (movement == MOVEMENT.Backward)
-                {
-                    x += dx;
-                    y -= dy;
-                }
-                else
-                {
-                    x -= dx;
-                    y += dy;
-                }
+                x += step;
+                y -= step;
             }
 
-            bool hitBorders = false;
-            if (currentDirection == STATUS.Main)
+            // Проверка границ
+            bool hitBorder = false;
+            if (x >= ClientSize.Width - size || x <= 0)
             {
-                if (movement == MOVEMENT.Forward)
-                {
-                    if (x >= ClientSize.Width - size || y >= ClientSize.Height - size)
-                    {
-                        hitBorders = true;
-                    }
-                }
-                else
-                {
-                    if (x <= 0 || y <= 0)
-                    {
-                        hitBorders = true;
-                    }
-                }
+                step = -step;
+                hitBorder = true;
             }
-            else
+            if (y >= ClientSize.Height - size || y <= 0)
             {
-                if (movement == MOVEMENT.Forward)
-                {
-                    // Проверяем правую и верхнюю границы
-                    if (x >= ClientSize.Width - size || y <= 0)
-                        hitBorders = true;
-                }
-                else
-                {
-                    // Проверяем левую и нижнюю границы
-                    if (x <= 0 || y >= ClientSize.Height - size)
-                        hitBorders = true;
-                }
-            }
-            if (hitBorders)
-            {
-                // Меняем направление движения
-                movement = movement == MOVEMENT.Forward ? MOVEMENT.Backward : MOVEMENT.Forward;
-                // Меняем цвет в соответствии с направлением
-                brush.Color = movement == MOVEMENT.Forward ?
-                    forwardColor : backwardColor;
+                step = -step;
+                hitBorder = true;
             }
 
+            // Смена цвета при касании границы
+            if (hitBorder)
+            {
+                brush.Color = Color.FromArgb(
+                    rnd.Next(256),
+                    rnd.Next(256),
+                    rnd.Next(256));
+            }
+
+            // Обновление позиции
             shapeRect = new Rectangle(x, y, size, size);
-            this.Invalidate(shapeRect);
+            Invalidate(shapeRect);
         }
-        private void Form1_Paint(object sender, PaintEventArgs e) // событиеперерисовки формы
+
+        protected override void OnPaint(PaintEventArgs e)
         {
-            // Рисуем фигуру в зависимости от выбранного типа
             switch (currentShape)
             {
                 case SHAPE_TYPE.Circle:
-                    // Рисуем круг
                     e.Graphics.FillEllipse(brush, shapeRect);
                     break;
                 case SHAPE_TYPE.Rhomb:
-                    // Создаем точки для ромба
-                    Point[] diamondPoints = {
-                        new Point(x + size/2, y),               // Верхняя точка
-                        new Point(x + size, y + size/2),        // Правая точка
-                        new Point(x + size/2, y + size),        // Нижняя точка
-                        new Point(x, y + size/2)                // Левая точка
+                    Point[] rhombPoints = {
+                        new Point(x + size/2, y),
+                        new Point(x + size, y + size/2),
+                        new Point(x + size/2, y + size),
+                        new Point(x, y + size/2)
                     };
-                    // Рисуем ромб
-                    e.Graphics.FillPolygon(brush, diamondPoints);
+                    e.Graphics.FillPolygon(brush, rhombPoints);
                     break;
                 case SHAPE_TYPE.Triangle:
-                    // Создаем точки для треугольника
                     Point[] trianglePoints = {
-                        new Point(x + size/2, y),              // Верхняя точка
-                        new Point(x + size, y + size),          // Правая нижняя
-                        new Point(x, y + size)                  // Левая нижняя
+                        new Point(x + size/2, y),
+                        new Point(x + size, y + size),
+                        new Point(x, y + size)
                     };
                     e.Graphics.FillPolygon(brush, trianglePoints);
                     break;
