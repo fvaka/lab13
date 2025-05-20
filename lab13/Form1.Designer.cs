@@ -28,7 +28,13 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
+            this.timer2 = new System.Windows.Forms.Timer(this.components);
             this.SuspendLayout();
+            // 
+            // timer2
+            // 
+            this.timer2.Tick += new System.EventHandler(this.timer1_Tick);
             // 
             // Form1
             // 
@@ -37,11 +43,14 @@
             this.ClientSize = new System.Drawing.Size(800, 450);
             this.Name = "Form1";
             this.Text = "Движение фигуры";
+            this.Paint += new System.Windows.Forms.PaintEventHandler(this.Form1_Paint);
             this.ResumeLayout(false);
 
         }
 
         #endregion
+
+        private System.Windows.Forms.Timer timer2;
     }
 }
 
