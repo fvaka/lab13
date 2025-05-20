@@ -16,5 +16,34 @@ namespace lab13
         {
             InitializeComponent();
         }
+
+        private void Form2_Load(object sender, EventArgs e)
+        {
+            Form1 owner = (Form1)this.Owner;
+            trackBar1.Value = owner.MovementSpeed;
+            linkLabel1.ForeColor = owner.ForwardColor;
+            switch (owner.CurrentShape)
+            {
+                case SHAPE_TYPE.Circle: 
+                    break;
+                case SHAPE_TYPE.Rhomb:
+                    break;
+                case SHAPE_TYPE.Triangle:
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            using (var colorDialog = new ColorDialog())
+            {
+                if (colorDialog.ShowDialog() == DialogResult.OK)
+                {
+
+                }
+            }
+        }
     }
 }
