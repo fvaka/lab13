@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Drawing;
 using System.Windows.Forms;
 
 namespace lab13
@@ -8,16 +7,17 @@ namespace lab13
     {
         private Form1 mainForm;
 
-        public Form2()
+        public Form2(Form1 form)
         {
             InitializeComponent();
+            mainForm = form;
         }
 
         private void Form2_Load(object sender, EventArgs e)
         {
-            mainForm = (Form1)this.Owner;
+            //mainForm = (Form1)this.Owner;
             trackBar1.Value = mainForm.Speed;
-            linkColor.BackColor = mainForm.ShapeColor;
+            linkColor.LinkColor = mainForm.ShapeColor;
 
             // Установка текущих значений
             rbCircle.Checked = mainForm.ShapeType == SHAPE_TYPE.Circle;
@@ -57,12 +57,12 @@ namespace lab13
 
         private void linkColor_Click(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            ColorDialog dialog = new ColorDialog();
-            if (dialog.ShowDialog() == DialogResult.OK)
+            using (var dialog = new ColorDialog())
             {
-                linkColor.BackColor = dialog.Color;
+                if (dialog.ShowDialog() == DialogResult.Cancel) return;
                 mainForm.ShapeColor = dialog.Color;
             }
         }
+       
     }
 }

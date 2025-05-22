@@ -61,6 +61,7 @@
             this.trackBar1.Name = "trackBar1";
             this.trackBar1.Size = new System.Drawing.Size(205, 45);
             this.trackBar1.TabIndex = 0;
+            this.trackBar1.Scroll += new System.EventHandler(this.trackBarSpeed_Scroll);
             // 
             // groupBox2
             // 
@@ -84,6 +85,7 @@
             this.rbTriangle.TabStop = true;
             this.rbTriangle.Text = "Треугольник";
             this.rbTriangle.UseVisualStyleBackColor = true;
+            this.rbTriangle.CheckedChanged += new System.EventHandler(this.rbShape_CheckedChanged);
             // 
             // rbRhomb
             // 
@@ -95,6 +97,7 @@
             this.rbRhomb.TabStop = true;
             this.rbRhomb.Text = "Ромб";
             this.rbRhomb.UseVisualStyleBackColor = true;
+            this.rbRhomb.CheckedChanged += new System.EventHandler(this.rbShape_CheckedChanged);
             // 
             // rbCircle
             // 
@@ -106,6 +109,7 @@
             this.rbCircle.TabStop = true;
             this.rbCircle.Text = "Круг";
             this.rbCircle.UseVisualStyleBackColor = true;
+            this.rbCircle.CheckedChanged += new System.EventHandler(this.rbShape_CheckedChanged);
             // 
             // linkColor
             // 
@@ -149,6 +153,7 @@
             this.rbAnti.TabStop = true;
             this.rbAnti.Text = "По побочной диагонали";
             this.rbAnti.UseVisualStyleBackColor = true;
+            this.rbAnti.CheckedChanged += new System.EventHandler(this.rbDiagonal_CheckedChanged);
             // 
             // rbMain
             // 
@@ -160,6 +165,7 @@
             this.rbMain.TabStop = true;
             this.rbMain.Text = "По главное диагонали";
             this.rbMain.UseVisualStyleBackColor = true;
+            this.rbMain.CheckedChanged += new System.EventHandler(this.rbDiagonal_CheckedChanged);
             // 
             // Form2
             // 

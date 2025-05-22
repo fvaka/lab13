@@ -40,6 +40,7 @@
             // 
             // btn_Stop
             // 
+            this.btn_Stop.AutoSize = true;
             this.btn_Stop.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.btn_Stop.ForeColor = System.Drawing.Color.Brown;
             this.btn_Stop.Location = new System.Drawing.Point(143, 280);
@@ -72,6 +73,7 @@
             this.Name = "Form1";
             this.Text = "Движение фигуры";
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
