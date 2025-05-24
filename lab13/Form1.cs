@@ -9,44 +9,156 @@ namespace lab13
 
     public partial class Form1 : Form
     {
-        //public enum SHAPE_TYPE { Circle, Rhomb, Triangle }
-        //public enum DIAGONAL_TYPE { Main, Anti }
-        private int size = 80;
-        private int x = 1, y = 1;
-        private int dx = 5, dy = 5;
-        //public int dx = 5;
-        bool isMoving = true;
-        private Color currentColor = Color.Red;
+        private const int SHAPE_SIZE = 40;
+        private PointF position;
+        private Color forwardColor = Color.Red;
+        private Color backwardColor = Color.Blue;
         private SHAPE_TYPE currentShape = SHAPE_TYPE.Circle;
-        private DIAGONAL_TYPE diagonal = DIAGONAL_TYPE.Main;
+        private DIAGONAL_TYPE currentDiagonal = DIAGONAL_TYPE.Main;
         private SolidBrush brush;
-        private RectangleF shapeRect = new RectangleF(100f, 100f, 50f, 50f);
-        private Random rnd = new Random();
+        private int speed = 50;
+        private bool isMovingForward = true;
 
         public Form1()
         {
             InitializeComponent();
+            position = new PointF(10, 50);
+            brush = new SolidBrush(forwardColor);
             this.DoubleBuffered = true;
-            brush = new SolidBrush(currentColor);
             this.KeyPreview = true;
-            timer1.Interval = 100;
+            timer1.Interval = 50;
             timer1.Start();
         }
 
-        // Свойства для настройки
         public int Speed
         {
-            get => 100 - timer1.Interval;
+            get => speed;
             set => timer1.Interval = Math.Max(1, 100 - value);
         }
 
-        public Color ShapeColor
+        private void MoveShape()
         {
-            get => currentColor;
+            float step = 2.5f * (speed / 50f); // Масштабируем шаг в зависимости от скорости
+
+            if (isMovingForward)
+            {
+                // Движение вперед (вправо-вниз)
+                if (currentDiagonal == DIAGONAL_TYPE.Main)
+                {
+                    position.X += step;
+                    position.Y += step;
+                }
+                else // Побочная диагональ
+                {
+                    position.X += step;
+                    position.Y -= step;
+                }
+            }
+            else
+            {
+                // Движение назад (влево-вверх)
+                if (currentDiagonal == DIAGONAL_TYPE.Main)
+                {
+                    position.X -= step;
+                    position.Y -= step;
+                }
+                else // Побочная диагональ
+                {
+                    position.X -= step;
+                    position.Y += step;
+                }
+            }
+
+            // Проверка достижения границ формы
+            bool hitBoundary = false;
+
+            if (currentDiagonal == DIAGONAL_TYPE.Main)
+            {
+                if (position.X >= ClientSize.Width - SHAPE_SIZE || position.Y >= ClientSize.Height - SHAPE_SIZE ||
+                    position.X <= 0 || position.Y <= 0)
+                {
+                    hitBoundary = true;
+                }
+            }
+            else
+            {
+                if (position.X >= ClientSize.Width - SHAPE_SIZE || position.Y <= 0 ||
+                    position.X <= 0 || position.Y >= ClientSize.Height - SHAPE_SIZE)
+                {
+                    hitBoundary = true;
+                }
+            }
+
+            if (hitBoundary)
+            {
+                isMovingForward = !isMovingForward;
+                brush.Color = isMovingForward ? forwardColor : backwardColor;
+
+                // Корректировка позиции, чтобы фигура не выходила за границы
+                position.X = Math.Max(0, Math.Min(position.X, ClientSize.Width - SHAPE_SIZE));
+                position.Y = Math.Max(0, Math.Min(position.Y, ClientSize.Height - SHAPE_SIZE));
+            }
+        }
+
+        protected override void OnPaint(PaintEventArgs e)
+        {
+            base.OnPaint(e);
+            e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+
+            var shapeRect = new RectangleF(position.X, position.Y, SHAPE_SIZE, SHAPE_SIZE);
+
+            switch (currentShape)
+            {
+                case SHAPE_TYPE.Circle:
+                    e.Graphics.FillEllipse(brush, shapeRect);
+                    break;
+                case SHAPE_TYPE.Rhomb:
+                    PointF[] rhombPoints = {
+                        new PointF(shapeRect.X + shapeRect.Width / 2, shapeRect.Y),
+                        new PointF(shapeRect.Right, shapeRect.Y + shapeRect.Height / 2),
+                        new PointF(shapeRect.X + shapeRect.Width / 2, shapeRect.Bottom),
+                        new PointF(shapeRect.X, shapeRect.Y + shapeRect.Height / 2)
+                    };
+                    e.Graphics.FillPolygon(brush, rhombPoints);
+                    break;
+                case SHAPE_TYPE.Triangle:
+                    PointF[] trianglePoints = {
+                        new PointF(shapeRect.X + shapeRect.Width / 2, shapeRect.Y),
+                        new PointF(shapeRect.Right, shapeRect.Bottom),
+                        new PointF(shapeRect.X, shapeRect.Bottom)
+                    };
+                    e.Graphics.FillPolygon(brush, trianglePoints);
+                    break;
+            }
+        }
+
+        protected override void OnKeyDown(KeyEventArgs e)
+        {
+            base.OnKeyDown(e);
+            if (e.KeyCode == Keys.Escape)
+            {
+                Application.Exit();
+            }
+        }
+
+        public Color ForwardColor
+        {
+            get => forwardColor;
             set
             {
-                currentColor = value;
-                brush.Color = value;
+                forwardColor = value;
+                if (isMovingForward) brush.Color = value;
+                Invalidate();
+            }
+        }
+
+        public Color BackwardColor
+        {
+            get => backwardColor;
+            set
+            {
+                backwardColor = value;
+                if (!isMovingForward) brush.Color = value;
                 Invalidate();
             }
         }
@@ -63,20 +175,22 @@ namespace lab13
 
         public DIAGONAL_TYPE DiagonalType
         {
-            get => diagonal;
+            get => currentDiagonal;
             set
             {
-                diagonal = value;
+                currentDiagonal = value;
                 Invalidate();
             }
         }
-        private void btn_Settings_Click(object sender, EventArgs e)
-        {
 
-            var settingsForm = new Form2(this);
-            settingsForm.Owner = this;
-            settingsForm.Show(); // Не модальное окно для мгновенного применения
+        private void timer1_Tick(object sender, EventArgs e)
+        {
+            MoveShape();
+            Invalidate();
         }
+
+        private void btn_Settings_Click(object sender, EventArgs e) => new Form2(this).Show();
+
         private void btn_Stop_Click(object sender, EventArgs e)
         {
             if (timer1.Enabled)
@@ -90,69 +204,19 @@ namespace lab13
                 btn_Stop.Text = "Стоп";
             }
         }
-        private void timer1_Tick(object sender, EventArgs e)
+
+        protected override void OnResize(EventArgs e)
         {
-            MoveShape();
+            base.OnResize(e);
             Invalidate();
         }
-        private void DrawShape(Graphics g)
+
+        private void Form1_KeyDown(object sender, KeyEventArgs e)
         {
-            Brush brush = new SolidBrush(currentColor);
-            switch (currentShape)
+            if (e.KeyCode == Keys.Escape)
             {
-                case SHAPE_TYPE.Circle:
-                    g.FillEllipse(brush, shapeRect);
-                    break;
-                case SHAPE_TYPE.Rhomb:
-                    Point[] rhombPoints =
-                    {
-                        new Point((int)(shapeRect.Left + shapeRect.Width / 2), (int)shapeRect.Top),
-                        new Point((int)shapeRect.Right, (int)(shapeRect.Top + shapeRect.Height / 2)),
-                        new Point((int)(shapeRect.Left + shapeRect.Width / 2), (int)shapeRect.Bottom),
-                        new Point((int)shapeRect.Left, (int)(shapeRect.Top + shapeRect.Height / 2))
-                    };
-                    g.FillPolygon(brush, rhombPoints);
-                    break;
-                case SHAPE_TYPE.Triangle:
-                    Point[] trianglePoints =
-                    {
-                        new Point((int)(shapeRect.Left + shapeRect.Width / 2), (int)shapeRect.Top),
-                        new Point((int)shapeRect.Right, (int)shapeRect.Bottom),
-                        new Point((int)shapeRect.Left, (int)shapeRect.Bottom)
-                    };
-                    g.FillPolygon(brush, trianglePoints);
-                    break;
+                this.Close();
             }
         }
-        private void ChangeShapeColor()
-        {
-            Random rnd = new Random();
-            currentColor = Color.FromArgb(rnd.Next(256), rnd.Next(256), rnd.Next(256));
-        }
-        private void MoveShape()
-        {
-            float x = shapeRect.X + dx;
-            float y = shapeRect.Y + dy;
-
-            // Проверка столкновения с границами окна
-            if ((x <= 0 || x >= ClientSize.Width - shapeRect.Width))
-            {
-                dx *= -1;          // Меняем направление горизонтально
-                ChangeShapeColor(); // Изменяем цвет фигуры
-            }
-            if ((y <= 0 || y >= ClientSize.Height - shapeRect.Height))
-            {
-                dy *= -1;           // Меняем направление вертикально
-                ChangeShapeColor(); // Изменяем цвет фигуры
-            }
-
-            shapeRect.Location = new Point((int)x, (int)y);
-        }
-        protected override void OnPaint(PaintEventArgs e)
-        {
-           base.OnPaint(e);
-            DrawShape(e.Graphics);
-        }
-
     }
 }

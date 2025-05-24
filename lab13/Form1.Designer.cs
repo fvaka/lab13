@@ -43,9 +43,9 @@
             this.btn_Stop.AutoSize = true;
             this.btn_Stop.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.btn_Stop.ForeColor = System.Drawing.Color.Brown;
-            this.btn_Stop.Location = new System.Drawing.Point(143, 280);
+            this.btn_Stop.Location = new System.Drawing.Point(12, 12);
             this.btn_Stop.Name = "btn_Stop";
-            this.btn_Stop.Size = new System.Drawing.Size(122, 45);
+            this.btn_Stop.Size = new System.Drawing.Size(122, 23);
             this.btn_Stop.TabIndex = 0;
             this.btn_Stop.Text = "Стоп";
             this.btn_Stop.UseVisualStyleBackColor = true;
@@ -55,9 +55,9 @@
             // 
             this.btn_Settings.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.btn_Settings.ForeColor = System.Drawing.SystemColors.Highlight;
-            this.btn_Settings.Location = new System.Drawing.Point(291, 282);
+            this.btn_Settings.Location = new System.Drawing.Point(140, 14);
             this.btn_Settings.Name = "btn_Settings";
-            this.btn_Settings.Size = new System.Drawing.Size(121, 43);
+            this.btn_Settings.Size = new System.Drawing.Size(121, 21);
             this.btn_Settings.TabIndex = 1;
             this.btn_Settings.Text = "Настройки";
             this.btn_Settings.UseVisualStyleBackColor = true;
@@ -67,11 +67,12 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(540, 367);
+            this.ClientSize = new System.Drawing.Size(290, 335);
             this.Controls.Add(this.btn_Settings);
             this.Controls.Add(this.btn_Stop);
             this.Name = "Form1";
             this.Text = "Движение фигуры";
+            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Form1_KeyDown);
             this.ResumeLayout(false);
             this.PerformLayout();
 
