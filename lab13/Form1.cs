@@ -74,7 +74,7 @@ namespace lab13
 
             if (currentDiagonal == DIAGONAL_TYPE.Main)
             {
-                if (position.X >= ClientSize.Width - SHAPE_SIZE || position.Y >= ClientSize.Height - SHAPE_SIZE ||
+                if (position.X >= ClientSize.Width - 20 - SHAPE_SIZE || position.Y >= ClientSize.Height - 20 - SHAPE_SIZE ||
                     position.X <= 0 || position.Y <= 0)
                 {
                     hitBoundary = true;
@@ -82,8 +82,8 @@ namespace lab13
             }
             else
             {
-                if (position.X >= ClientSize.Width - SHAPE_SIZE || position.Y <= 0 ||
-                    position.X <= 0 || position.Y >= ClientSize.Height - SHAPE_SIZE)
+                if (position.X >= ClientSize.Width - 20 - SHAPE_SIZE || position.Y <= 0 ||
+                    position.X <= 0 || position.Y >= ClientSize.Height - 20 - SHAPE_SIZE)
                 {
                     hitBoundary = true;
                 }
@@ -189,7 +189,13 @@ namespace lab13
             Invalidate();
         }
 
-        private void btn_Settings_Click(object sender, EventArgs e) => new Form2(this).Show();
+        private void btn_Settings_Click(object sender, EventArgs e)
+        {
+            if (Application.OpenForms.Count == 1)
+            {
+                new Form2(this).Show();
+            };
+        }
 
         private void btn_Stop_Click(object sender, EventArgs e)
         {
